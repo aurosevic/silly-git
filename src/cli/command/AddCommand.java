@@ -45,9 +45,7 @@ public class AddCommand implements CLICommand {
     private void addFileToStorage(File file) {
         try {
             if (file.isDirectory()) {
-                String storage = AppConfig.myServentInfo.getStorage();
-                String parent = storage.substring(storage.indexOf("storage") + 8, storage.length() - 1);
-                String dirToMake = AppConfig.myServentInfo.getStorage() + file.getPath().substring(file.getPath().indexOf(parent) + parent.length());
+                String dirToMake = getStorageEquivalentForRoot(file);
                 File dir = new File(dirToMake);
                 if (!dir.exists()) dir.mkdirs();
                 for (File f : file.listFiles()) {
@@ -55,7 +53,7 @@ public class AddCommand implements CLICommand {
                 }
             } else {
                 byte[] fileContent = Files.readAllBytes(file.toPath());
-                String storageFileName = AppConfig.myServentInfo.getStorage() + file.getPath().substring(file.getPath().indexOf("root") + "root".length());
+                String storageFileName = getStorageEquivalentForRoot(file);
                 File storageFile = new File(storageFileName);
                 Files.write(storageFile.toPath(), fileContent);
             }
