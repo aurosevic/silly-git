@@ -7,13 +7,14 @@ public class SillyFile implements Serializable {
     private boolean isInMainNodeGroup;
     private String path;
     private boolean isDirectory;
-    private AtomicInteger version = new AtomicInteger();
+    private AtomicInteger versionCounter = new AtomicInteger(0);
+    private int version;
     private int fileStatus;
 
     public SillyFile(String path, boolean isDirectory) {
         this.path = path;
         this.isDirectory = isDirectory;
-        this.version.incrementAndGet();
+        this.version = versionCounter.getAndIncrement();
         this.isInMainNodeGroup = false;
     }
 

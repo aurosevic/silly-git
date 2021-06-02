@@ -79,6 +79,7 @@ public class NewNodeHandler implements MessageHandler {
 
                 }
                 for (Integer key : hisValues.keySet()) { //remove his values from my map
+                    // TODO: Arrange files that no longer belong to me
                     myValues.remove(key);
                 }
                 AppConfig.chordState.setValueMap(myValues);
