@@ -19,6 +19,7 @@ public class AppConfig {
      * Convenience access for this servent's information
      */
     public static ServentInfo myServentInfo;
+    public static String SILLY_GIT_DIR;
 
     /**
      * Print a message to stdout with a timestamp

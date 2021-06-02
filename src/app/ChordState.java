@@ -1,5 +1,6 @@
 package app;
 
+import app.silly_git.SillyFile;
 import servent.message.AskGetMessage;
 import servent.message.PutMessage;
 import servent.message.WelcomeMessage;
@@ -58,7 +59,7 @@ public class ChordState {
     //we DO NOT use this to send messages, but only to construct the successor table
     private List<ServentInfo> allNodeInfo;
 
-    private Map<Integer, Integer> valueMap;
+    private Map<Integer, SillyFile> valueMap;
 
     public ChordState() {
         this.chordLevel = 1;
@@ -127,11 +128,11 @@ public class ChordState {
         this.predecessorInfo = newNodeInfo;
     }
 
-    public Map<Integer, Integer> getValueMap() {
+    public Map<Integer, SillyFile> getValueMap() {
         return valueMap;
     }
 
-    public void setValueMap(Map<Integer, Integer> valueMap) {
+    public void setValueMap(Map<Integer, SillyFile> valueMap) {
         this.valueMap = valueMap;
     }
 
@@ -315,7 +316,7 @@ public class ChordState {
     /**
      * The Chord put operation. Stores locally if key is ours, otherwise sends it on.
      */
-    public void putValue(int key, int value) {
+    public void putValue(int key, SillyFile value) {
         if (isKeyMine(key)) {
             valueMap.put(key, value);
         } else {
@@ -334,12 +335,12 @@ public class ChordState {
      * <li>-2 if we asked someone else</li>
      * </ul>
      */
-    public int getValue(int key) {
+    public SillyFile getValue(int key) {
         if (isKeyMine(key)) {
             if (valueMap.containsKey(key)) {
                 return valueMap.get(key);
             } else {
-                return -1;
+                return new SillyFile(-1);
             }
         }
 
@@ -347,7 +348,7 @@ public class ChordState {
         AskGetMessage agm = new AskGetMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(key));
         MessageUtil.sendMessage(agm);
 
-        return -2;
+        return new SillyFile(-2);
     }
 
 }
