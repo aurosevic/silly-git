@@ -24,18 +24,28 @@ public class AddCommand implements CLICommand {
 
     @Override
     public void execute(String args) {
+        boolean isDirectory = false;
+        if (args.endsWith("~")) {
+            isDirectory = true;
+            args = args.substring(0, args.length() - 1);
+        }
         String filePath = AppConfig.myServentInfo.getRoot() + args;
         File file = new File(filePath);
         try {
             if (file.exists()) {
+                int hash;
                 String pattern = Pattern.quote(System.getProperty("file.separator"));
-                int hash = ChordState.chordHashDir(args.split(pattern)[0]);
+                if (file.isDirectory() || isDirectory) {
+                    hash = ChordState.chordHashDir(args.split(pattern)[0]);
+                } else {
+                    hash = ChordState.chordHashDir(args);
+                }
                 AppConfig.timestampedStandardPrint("Hash for file: [" + args + "] -> [" + hash + "]");
 
                 SillyFile sillyFile;
                 if (file.isDirectory()) {
                     for (File f : file.listFiles()) {
-                        execute(args + "\\" + f.getName());
+                        execute(args + "\\" + f.getName() + "~");
                     }
                 } else {
                     sillyFile = new SillyFile(Files.readAllBytes(Path.of(filePath)), args);
@@ -45,7 +55,8 @@ public class AddCommand implements CLICommand {
                             AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
                         } else {
                             AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
-                            AppConfig.chordState.getValueMap().put(hash, sillyFile);
+                            if (isDirectory) AppConfig.chordState.getValueMap().put(hash, new SillyFile(args.split(pattern)[0]));
+                            else AppConfig.chordState.getValueMap().put(hash, sillyFile);
                             addFileToStorage(sillyFile);
                         }
                     } else {

@@ -10,12 +10,19 @@ public class SillyFile implements Serializable {
     private int fileStatus;
     private byte[] fileContent;
     private String filePath;
+    private String directoryPath;
 
     public SillyFile(byte[] fileContent, String filePath) {
         this.version = versionCounter.getAndIncrement();
         this.fileContent = fileContent;
         this.filePath = filePath;
         this.isDirectory = false;
+    }
+
+    public SillyFile(String directoryPath) {
+        this.version = versionCounter.getAndIncrement();
+        this.directoryPath = directoryPath;
+        this.isDirectory = true;
     }
 
     public SillyFile(int fileStatus) {

@@ -1,16 +1,16 @@
 package servent.handler;
 
 import app.AppConfig;
-import app.ChordState;
 import app.ServentInfo;
 import app.silly_git.SillyFile;
 import servent.message.*;
 import servent.message.util.MessageUtil;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 public class NewNodeHandler implements MessageHandler {
 
@@ -83,11 +83,16 @@ public class NewNodeHandler implements MessageHandler {
                 for (Integer key : hisValues.keySet()) { //remove his values from my map
                     myValues.remove(key);
                     SillyFile sillyFile = hisValues.get(key);
-                    String pattern = Pattern.quote(System.getProperty("file.separator"));
-                    int hash = ChordState.chordHashDir(sillyFile.getFilePath().split(pattern)[0]);
-                    AddMessage addMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), newNodePort, String.valueOf(hash), sillyFile);
-                    MessageUtil.sendMessage(addMessage);
-                    // TODO: Remove file from my storage
+                    int hash = key;
+                    if (sillyFile.isDirectory()) {
+                        // TODO: Send file by file
+                    } else {
+                        AddMessage addMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), newNodePort, String.valueOf(hash), sillyFile);
+                        MessageUtil.sendMessage(addMessage);
+                        File file = new File(AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath());
+                        file.delete();
+                        // TODO: Remove file from my storage
+                    }
                 }
                 AppConfig.chordState.setValueMap(myValues);
 
