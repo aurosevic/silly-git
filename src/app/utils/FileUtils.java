@@ -1,6 +1,7 @@
 package app.utils;
 
 import app.AppConfig;
+import app.silly_git.SillyFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,28 +9,16 @@ import java.nio.file.Files;
 
 public class FileUtils {
 
-    public static void addFileToStorage(File file) {
+    public static void addFileToStorage(SillyFile sillyFile) {
         try {
-            if (file.isDirectory()) {
-                String dirToMake = getStorageEquivalentForRoot(file);
-                File dir = new File(dirToMake);
-                if (!dir.exists()) dir.mkdirs();
-                for (File f : file.listFiles()) {
-                    addFileToStorage(f);
-                }
-            } else {
-                byte[] fileContent = Files.readAllBytes(file.toPath());
-                String storageFileName = getStorageEquivalentForRoot(file);
-                File storageFile = new File(storageFileName);
-                Files.write(storageFile.toPath(), fileContent);
-            }
+            byte[] fileContent = sillyFile.getFileContent();
+            String storageFileName = AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath();
+            File storageFile = new File(storageFileName);
+            File dir = new File(storageFile.getParent());
+            if (!dir.exists()) dir.mkdirs();
+            Files.write(storageFile.toPath(), fileContent);
         } catch (IOException e) {
-            AppConfig.timestampedErrorPrint("Couldn't add file [" + file.getPath() + "] to storage.");
+            AppConfig.timestampedErrorPrint("Couldn't add file [" + sillyFile.getFilePath() + "] to storage.");
         }
-    }
-
-    public static String getStorageEquivalentForRoot(File file) {
-        String filePath = file.getPath();
-        return file.getPath().replaceFirst("root", "storage");
     }
 }

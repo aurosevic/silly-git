@@ -1,26 +1,21 @@
 package app.silly_git;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SillyFile implements Serializable {
-    private boolean isInMainNodeGroup;
-    private File file;
     private boolean isDirectory;
     private AtomicInteger versionCounter = new AtomicInteger(0);
     private int version;
     private int fileStatus;
+    private byte[] fileContent;
+    private String filePath;
 
-    public SillyFile(File file) {
-        this.file = file;
-        this.isDirectory = file.isDirectory();
+    public SillyFile(byte[] fileContent, String filePath) {
         this.version = versionCounter.getAndIncrement();
-        this.isInMainNodeGroup = false;
-    }
-
-    public SillyFile(boolean isInMainNodeGroup) {
-        this.isInMainNodeGroup = isInMainNodeGroup;
+        this.fileContent = fileContent;
+        this.filePath = filePath;
+        this.isDirectory = false;
     }
 
     public SillyFile(int fileStatus) {
@@ -31,7 +26,15 @@ public class SillyFile implements Serializable {
         return fileStatus;
     }
 
-    public File getFile() {
-        return file;
+    public boolean isDirectory() {
+        return isDirectory;
+    }
+
+    public byte[] getFileContent() {
+        return fileContent;
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 }

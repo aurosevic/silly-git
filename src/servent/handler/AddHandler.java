@@ -8,6 +8,8 @@ import servent.message.Message;
 import servent.message.MessageType;
 import servent.message.util.MessageUtil;
 
+import java.io.File;
+
 import static app.utils.FileUtils.addFileToStorage;
 
 public class AddHandler implements MessageHandler {
@@ -24,21 +26,20 @@ public class AddHandler implements MessageHandler {
             AddMessage message = (AddMessage) clientMessage;
 
             SillyFile sillyFile = message.getFile();
-            String filePath = sillyFile.getFile().getPath();
+            String filePath = sillyFile.getFilePath();
             int hash = Integer.parseInt(message.getMessageText());
 
             if (AppConfig.chordState.isKeyMine(hash)) {
-                if (AppConfig.chordState.getValueMap().containsKey(hash)) {
+                if (new File(AppConfig.myServentInfo.getStorage() + filePath).exists()) {
                     AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
                 } else {
                     AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
                     AppConfig.chordState.getValueMap().put(hash, sillyFile);
-                    addFileToStorage(sillyFile.getFile());
+                    addFileToStorage(sillyFile);
                 }
             } else {
                 AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
                 ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(hash);
-                // TODO: Send Add message
                 AddMessage sendingMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile);
                 MessageUtil.sendMessage(sendingMessage);
             }
