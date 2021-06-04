@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileUtils {
 
+    public static final String VERSION_PREFIX = "~";
+
     public static void addFileToStorage(SillyFile sillyFile, boolean isPull) {
         try {
             byte[] fileContent = sillyFile.getFileContent();
