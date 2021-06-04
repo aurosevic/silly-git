@@ -38,6 +38,10 @@ public class SillyFile implements Serializable {
         this.isDirectory = true;
     }
 
+    public SillyFile changeContent(SillyFile sillyFile, byte[] newContent) {
+        return new SillyFile(newContent, sillyFile.getFilePath(), sillyFile.getVersion());
+    }
+
     public SillyFile(int fileStatus) {
         this.fileStatus = fileStatus;
     }

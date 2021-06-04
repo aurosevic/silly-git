@@ -27,7 +27,7 @@ public class PullCommand implements CLICommand {
         if (AppConfig.chordState.getValueMap().containsKey(hash)) {
             AppConfig.timestampedErrorPrint("I already have this file.");
         } else {
-            PullMessage message = new PullMessage(myInfo, myInfo.getListenerPort(), nextNodeInfo.getListenerPort(), String.valueOf(hash));
+            PullMessage message = new PullMessage(myInfo, myInfo.getListenerPort(), nextNodeInfo.getListenerPort(), String.valueOf(hash), version);
             MessageUtil.sendMessage(message);
         }
     }
