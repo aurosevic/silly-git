@@ -55,7 +55,7 @@ public class CommitCommand implements CLICommand {
                                 case "push" -> {
                                     addFileToStorageVersioning(mySillyFile);
                                     mySillyFile.setFileContent(newContent);
-                                    mySillyFile.setVersion(mySillyFile.getVersion() + 1);
+                                    mySillyFile.incrementVersion();
                                     AppConfig.chordState.getValueMap().remove(hash);
                                     AppConfig.chordState.getValueMap().put(hash, mySillyFile);
                                     working = false;

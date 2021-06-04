@@ -29,11 +29,13 @@ public class AddHandler implements MessageHandler {
             String filePath = sillyFile.getFilePath();
             int hash = Integer.parseInt(message.getMessageText());
 
+            ServentInfo myInfo = AppConfig.myServentInfo;
+
             if (message.isPull()) {
                 addFileToStorage(sillyFile, true);
             } else {
                 if (AppConfig.chordState.isKeyMine(hash)) {
-                    if (new File(AppConfig.myServentInfo.getStorage() + filePath).exists()) {
+                    if (new File(myInfo.getStorage() + filePath).exists()) {
                         AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
                     } else {
                         AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
@@ -43,7 +45,7 @@ public class AddHandler implements MessageHandler {
                 } else {
                     AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
                     ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(hash);
-                    AddMessage sendingMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile, false);
+                    AddMessage sendingMessage = new AddMessage(myInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile, false);
                     MessageUtil.sendMessage(sendingMessage);
                 }
             }

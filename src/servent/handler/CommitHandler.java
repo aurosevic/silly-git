@@ -51,7 +51,7 @@ public class CommitHandler implements MessageHandler {
                             case "push" -> {
                                 addFileToStorageVersioning(mySillyFile);
                                 mySillyFile.setFileContent(message.getNewContent());
-                                mySillyFile.setVersion(mySillyFile.getVersion() + 1);
+                                mySillyFile.incrementVersion();
                                 AppConfig.chordState.getValueMap().remove(hash);
                                 AppConfig.chordState.getValueMap().put(hash, mySillyFile);
                                 working = false;
