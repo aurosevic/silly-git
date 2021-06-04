@@ -32,7 +32,13 @@ public class AddHandler implements MessageHandler {
             ServentInfo myInfo = AppConfig.myServentInfo;
 
             if (message.isPull()) {
-                if (!sillyFile.isDirectory()) addFileToStorage(sillyFile, true);
+                if (!sillyFile.isDirectory()) {
+                    if (!new File(myInfo.getRoot() + sillyFile.getFilePath()).exists()) {
+                        addFileToStorage(sillyFile, true);
+                    } else {
+                        AppConfig.timestampedErrorPrint("I already have file: [" + sillyFile.getFilePath() + "]");
+                    }
+                }
             } else {
                 if (AppConfig.chordState.isKeyMine(hash)) {
                     if (new File(myInfo.getStorage() + filePath).exists()) {

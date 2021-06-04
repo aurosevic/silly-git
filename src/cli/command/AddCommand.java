@@ -42,7 +42,7 @@ public class AddCommand implements CLICommand {
 
                 if (file.isDirectory()) {
                     SillyFile sillyFile = new SillyFile(args);
-                    getFilesFromDir(sillyFile, args);
+                    getFilesFromDir(sillyFile, args, false);
                     for (Map.Entry<Integer, SillyFile> entry : sillyFile.getSillyFiles().entrySet()) {
                         SillyFile subFile = entry.getValue();
                         execute(subFile.getFilePath() + " " + subFile.getVersion());
@@ -76,7 +76,7 @@ public class AddCommand implements CLICommand {
                     }
                 }
             } else {
-                AppConfig.timestampedErrorPrint("File with path: " + filePath + " doesn't exist.");
+                AppConfig.timestampedErrorPrint("File/dir with path: " + filePath + " doesn't exist.");
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -14,9 +14,7 @@ public class FileUtils {
     public static void addFileToStorage(SillyFile sillyFile, boolean isPull) {
         try {
             byte[] fileContent = sillyFile.getFileContent();
-            String rootDir;
-            if (isPull) rootDir = AppConfig.myServentInfo.getRoot();
-            else rootDir = AppConfig.myServentInfo.getStorage();
+            String rootDir = isPull ? AppConfig.myServentInfo.getRoot() : AppConfig.myServentInfo.getStorage();
             String storageFileName = rootDir + sillyFile.getFilePath();
             File storageFile = new File(storageFileName);
             File dir = new File(storageFile.getParent());
@@ -41,12 +39,14 @@ public class FileUtils {
         }
     }
 
-    public static void getFilesFromDir(SillyFile sillyFile, String path) {
-        File file = new File(AppConfig.myServentInfo.getRoot() + "\\" + path);
+    public static void getFilesFromDir(SillyFile sillyFile, String path, boolean isPull) {
+        String rootDir = isPull ? AppConfig.myServentInfo.getStorage() : AppConfig.myServentInfo.getRoot();
+        rootDir += "\\" + path;
+        File file = new File(rootDir);
         if (file.isDirectory()) {
             for (File f : file.listFiles()) {
                 String fileName = path + "\\" + f.getName();
-                getFilesFromDir(sillyFile, fileName);
+                getFilesFromDir(sillyFile, fileName, isPull);
             }
         } else {
             try {
