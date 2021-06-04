@@ -26,21 +26,21 @@ public class AddHandler implements MessageHandler {
             AddMessage message = (AddMessage) clientMessage;
 
             SillyFile sillyFile = message.getFile();
-            String filePath = sillyFile.getFilePath();
+            String filePath = sillyFile.isDirectory() ? sillyFile.getDirectoryPath() : sillyFile.getFilePath();
             int hash = Integer.parseInt(message.getMessageText());
 
             ServentInfo myInfo = AppConfig.myServentInfo;
 
-            if (message.isPull()) {
+            if (message.isPull()) { // TODO: Add not directory condition?
                 addFileToStorage(sillyFile, true);
             } else {
                 if (AppConfig.chordState.isKeyMine(hash)) {
                     if (new File(myInfo.getStorage() + filePath).exists()) {
-                        AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
+                        AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file/dir [" + filePath + "] already exists.");
                     } else {
                         AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
                         AppConfig.chordState.getValueMap().put(hash, sillyFile);
-                        addFileToStorage(sillyFile, false);
+                        if (!sillyFile.isDirectory()) addFileToStorage(sillyFile, false);
                     }
                 } else {
                     AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
