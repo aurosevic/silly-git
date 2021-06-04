@@ -31,8 +31,8 @@ public class AddHandler implements MessageHandler {
 
             ServentInfo myInfo = AppConfig.myServentInfo;
 
-            if (message.isPull()) { // TODO: Add not directory condition?
-                addFileToStorage(sillyFile, true);
+            if (message.isPull()) {
+                if (!sillyFile.isDirectory()) addFileToStorage(sillyFile, true);
             } else {
                 if (AppConfig.chordState.isKeyMine(hash)) {
                     if (new File(myInfo.getStorage() + filePath).exists()) {
