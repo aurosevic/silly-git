@@ -39,11 +39,15 @@ public class PullHandler implements MessageHandler {
                     MessageUtil.sendMessage(addMessage);
                 } else {
                     try {
-                        String filePath = myInfo.getStorage() + sillyFile.getFilePath() + "~" + version;
-                        byte[] newContent = Files.readAllBytes(Path.of(filePath));
-                        sillyFile = sillyFile.changeContent(sillyFile, newContent);
-                        AddMessage addMessage = new AddMessage(myInfo.getListenerPort(), message.getOriginalSender().getListenerPort(), String.valueOf(hash), sillyFile, true);
-                        MessageUtil.sendMessage(addMessage);
+                        if (sillyFile.isDirectory()) {
+                            // TODO: Handle directory
+                        } else {
+                            String filePath = myInfo.getStorage() + sillyFile.getFilePath() + "~" + version;
+                            byte[] newContent = Files.readAllBytes(Path.of(filePath));
+                            sillyFile = sillyFile.changeContent(sillyFile, newContent);
+                            AddMessage addMessage = new AddMessage(myInfo.getListenerPort(), message.getOriginalSender().getListenerPort(), String.valueOf(hash), sillyFile, true);
+                            MessageUtil.sendMessage(addMessage);
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

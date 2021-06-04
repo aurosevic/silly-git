@@ -87,6 +87,9 @@ public class SimpleServentListener implements Runnable, Cancellable {
                     case PULL:
                         messageHandler = new PullHandler(clientMessage);
                         break;
+                    case COMMIT:
+                        messageHandler = new CommitHandler(clientMessage);
+                        break;
                 }
 
                 threadPool.submit(messageHandler);

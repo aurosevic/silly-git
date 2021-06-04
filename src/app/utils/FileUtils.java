@@ -24,4 +24,18 @@ public class FileUtils {
             AppConfig.timestampedErrorPrint("Couldn't add file [" + sillyFile.getFilePath() + "] to storage.");
         }
     }
+
+    public static void addFileToStorageVersioning(SillyFile sillyFile) {
+        try {
+            byte[] fileContent = sillyFile.getFileContent();
+            String rootDir = AppConfig.myServentInfo.getStorage();
+            String storageFileName = rootDir + sillyFile.getFilePath() + "~" + sillyFile.getVersion();
+            File storageFile = new File(storageFileName);
+            File dir = new File(storageFile.getParent());
+            if (!dir.exists()) dir.mkdirs();
+            Files.write(storageFile.toPath(), fileContent);
+        } catch (IOException e) {
+            AppConfig.timestampedErrorPrint("Couldn't add file [" + sillyFile.getFilePath() + "] to storage.");
+        }
+    }
 }
