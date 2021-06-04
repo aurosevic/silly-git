@@ -19,8 +19,21 @@ public class SillyFile implements Serializable {
         this.isDirectory = false;
     }
 
+    public SillyFile(byte[] fileContent, String filePath, int version) {
+        this.version = version;
+        this.fileContent = fileContent;
+        this.filePath = filePath;
+        this.isDirectory = false;
+    }
+
     public SillyFile(String directoryPath) {
         this.version = versionCounter.getAndIncrement();
+        this.directoryPath = directoryPath;
+        this.isDirectory = true;
+    }
+
+    public SillyFile(String directoryPath, int version) {
+        this.version = version;
         this.directoryPath = directoryPath;
         this.isDirectory = true;
     }
@@ -43,5 +56,13 @@ public class SillyFile implements Serializable {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public String getDirectoryPath() {
+        return directoryPath;
+    }
+
+    public int getVersion() {
+        return version;
     }
 }

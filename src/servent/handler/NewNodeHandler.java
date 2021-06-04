@@ -7,6 +7,7 @@ import servent.message.*;
 import servent.message.util.MessageUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,6 @@ public class NewNodeHandler implements MessageHandler {
                                 hisValues.put(valueEntry.getKey(), valueEntry.getValue());
                             }
                         }
-
                     }
 
                 }
@@ -86,12 +86,12 @@ public class NewNodeHandler implements MessageHandler {
                     int hash = key;
                     if (sillyFile.isDirectory()) {
                         // TODO: Send file by file
+//                        sendFiles(sillyFile, AppConfig.myServentInfo, newNodeInfo, hash, newNodePort);
                     } else {
-                        AddMessage addMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), newNodePort, String.valueOf(hash), sillyFile);
+                        AddMessage addMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), newNodePort, String.valueOf(hash), sillyFile, false);
                         MessageUtil.sendMessage(addMessage);
                         File file = new File(AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath());
                         file.delete();
-                        // TODO: Remove file from my storage
                     }
                 }
                 AppConfig.chordState.setValueMap(myValues);
@@ -106,6 +106,41 @@ public class NewNodeHandler implements MessageHandler {
 
         } else {
             AppConfig.timestampedErrorPrint("NEW_NODE handler got something that is not new node message.");
+        }
+    }
+
+    private void sendFiles(SillyFile sillyFile, ServentInfo myServentInfo, ServentInfo newNodeInfo, int hash, int newNodePort) {
+        // TODO: won't work
+        try {
+            if (sillyFile.isDirectory()) {
+                File dir = new File(myServentInfo.getStorage() + sillyFile.getDirectoryPath());
+                for (File file : dir.listFiles()) {
+                    String path = sillyFile.getDirectoryPath() + "\\" + file.getName();
+                    if (!file.isDirectory()) {
+                        SillyFile sFile = new SillyFile(Files.readAllBytes(file.toPath()), path);
+                        sendFiles(sFile, myServentInfo, newNodeInfo, hash, newNodePort);
+                    } else {
+                        File storageFile = new File(myServentInfo.getStorage() + "\\" + path);
+                        File dirForFile = new File(storageFile.getPath());
+                        if (!dirForFile.exists()) dirForFile.mkdirs();
+                        sendFiles(new SillyFile(path), myServentInfo, newNodeInfo, hash, newNodePort);
+                    }
+                }
+            } else {
+                byte[] fileContent = sillyFile.getFileContent();
+                String storageFileName = AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath();
+                File storageFile = new File(storageFileName);
+                File dir = new File(storageFile.getParent());
+                if (!dir.exists()) dir.mkdirs();
+                Files.write(storageFile.toPath(), fileContent);
+
+                AddMessage addMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), newNodePort, String.valueOf(hash), sillyFile, false);
+                MessageUtil.sendMessage(addMessage);
+                File file = new File(AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath());
+                file.delete();
+            }
+        } catch (IOException e) {
+            AppConfig.timestampedErrorPrint("Couldn't add file [" + sillyFile.getFilePath() + "] to storage.");
         }
     }
 }

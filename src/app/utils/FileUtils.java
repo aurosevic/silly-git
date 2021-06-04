@@ -9,10 +9,13 @@ import java.nio.file.Files;
 
 public class FileUtils {
 
-    public static void addFileToStorage(SillyFile sillyFile) {
+    public static void addFileToStorage(SillyFile sillyFile, boolean isPull) {
         try {
             byte[] fileContent = sillyFile.getFileContent();
-            String storageFileName = AppConfig.myServentInfo.getStorage() + sillyFile.getFilePath();
+            String rootDir;
+            if (isPull) rootDir = AppConfig.myServentInfo.getRoot();
+            else rootDir = AppConfig.myServentInfo.getStorage();
+            String storageFileName = rootDir + sillyFile.getFilePath();
             File storageFile = new File(storageFileName);
             File dir = new File(storageFile.getParent());
             if (!dir.exists()) dir.mkdirs();

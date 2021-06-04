@@ -55,14 +55,15 @@ public class AddCommand implements CLICommand {
                             AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
                         } else {
                             AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
-                            if (isDirectory) AppConfig.chordState.getValueMap().put(hash, new SillyFile(args.split(pattern)[0]));
+                            if (isDirectory)
+                                AppConfig.chordState.getValueMap().put(hash, new SillyFile(args.split(pattern)[0]));
                             else AppConfig.chordState.getValueMap().put(hash, sillyFile);
-                            addFileToStorage(sillyFile);
+                            addFileToStorage(sillyFile, false);
                         }
                     } else {
                         AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
                         ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(hash);
-                        AddMessage message = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile);
+                        AddMessage message = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile, false);
                         MessageUtil.sendMessage(message);
                     }
                 }

@@ -29,19 +29,23 @@ public class AddHandler implements MessageHandler {
             String filePath = sillyFile.getFilePath();
             int hash = Integer.parseInt(message.getMessageText());
 
-            if (AppConfig.chordState.isKeyMine(hash)) {
-                if (new File(AppConfig.myServentInfo.getStorage() + filePath).exists()) {
-                    AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
-                } else {
-                    AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
-                    AppConfig.chordState.getValueMap().put(hash, sillyFile);
-                    addFileToStorage(sillyFile);
-                }
+            if (message.isPull()) {
+                addFileToStorage(sillyFile, true);
             } else {
-                AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
-                ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(hash);
-                AddMessage sendingMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile);
-                MessageUtil.sendMessage(sendingMessage);
+                if (AppConfig.chordState.isKeyMine(hash)) {
+                    if (new File(AppConfig.myServentInfo.getStorage() + filePath).exists()) {
+                        AppConfig.timestampedErrorPrint("Hash [" + hash + "] for file [" + filePath + "] already exists.");
+                    } else {
+                        AppConfig.timestampedStandardPrint("Hash [" + hash + "] belongs to me. Adding...");
+                        AppConfig.chordState.getValueMap().put(hash, sillyFile);
+                        addFileToStorage(sillyFile, false);
+                    }
+                } else {
+                    AppConfig.timestampedStandardPrint("Hash [" + hash + "] doesn't belongs to me. Sending...");
+                    ServentInfo nextNode = AppConfig.chordState.getNextNodeForKey(hash);
+                    AddMessage sendingMessage = new AddMessage(AppConfig.myServentInfo.getListenerPort(), nextNode.getListenerPort(), String.valueOf(hash), sillyFile, false);
+                    MessageUtil.sendMessage(sendingMessage);
+                }
             }
         }
     }
