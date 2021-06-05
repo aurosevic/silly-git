@@ -18,6 +18,10 @@ public class PullMessage extends BasicMessage {
         return new PullMessage(message.getOriginalSender(), newSenderPort, newReceiverPort, message.getMessageText(), message.getVersion());
     }
 
+    public PullMessage changeText(PullMessage message, String text) {
+        return new PullMessage(message.getOriginalSender(), message.getSenderPort(), message.getReceiverPort(), text, message.getVersion());
+    }
+
     public ServentInfo getOriginalSender() {
         return originalSender;
     }

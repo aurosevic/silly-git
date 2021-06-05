@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import static app.utils.FileUtils.VERSION_PREFIX;
-import static app.utils.FileUtils.getFilesFromDir;
 
 public class PullCommand implements CLICommand {
     @Override
@@ -43,7 +42,6 @@ public class PullCommand implements CLICommand {
                     // files in that directory than what I have
                     SillyFile sillyFile = AppConfig.chordState.getValueMap().get(hash);
                     if (sillyFile.isDirectory()) {
-                        getFilesFromDir(sillyFile, fileName, true);
                         for (Map.Entry<Integer, SillyFile> entry : sillyFile.getSillyFiles().entrySet()) {
                             SillyFile subFile = entry.getValue();
                             testFile = new File(myInfo.getRoot() + subFile.getFilePath());
