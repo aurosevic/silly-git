@@ -48,7 +48,7 @@ public class PullCommand implements CLICommand {
                             SillyFile subFile = entry.getValue();
                             testFile = new File(myInfo.getRoot() + subFile.getFilePath());
                             if (!testFile.exists()) {
-                                if (version != -1) {
+                                if (version != -1) { // pulling if origin file version is different from mine
                                     testFile = new File(myInfo.getStorage() + fileName + VERSION_PREFIX + version);
                                     if (testFile.exists()) {
                                         subFile = subFile.changeContent(subFile, Files.readAllBytes(testFile.toPath()));
