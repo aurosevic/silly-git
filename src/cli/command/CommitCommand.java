@@ -13,11 +13,13 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static app.utils.FileUtils.addFileToStorage;
-import static app.utils.FileUtils.addFileToStorageVersioning;
+import static app.utils.FileUtils.*;
 
 public class CommitCommand implements CLICommand {
+    Map<String, byte[]> localContentOfFilesInDir = new ConcurrentHashMap<>(); // For dirs that are not mine
+
     @Override
     public String commandName() {
         return "commit";
@@ -33,10 +35,17 @@ public class CommitCommand implements CLICommand {
         try {
             if (file.exists()) {
                 int hash = ChordState.chordHashDir(args);
-                byte[] localContent = file.isDirectory() ? null : Files.readAllBytes(file.toPath());
+                Object localContent = null;
+                if (file.isDirectory() && !AppConfig.chordState.getValueMap().containsKey(hash)) {
+                    getFileContent(localContentOfFilesInDir, file, myInfo);
+                    localContent = localContentOfFilesInDir;
+                } else if (!file.isDirectory()) {
+                    localContent = Files.readAllBytes(file.toPath());
+                }
 
                 if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                     // File belongs to me
+                    byte[] localContentBytes = ((byte[]) localContent);
                     SillyFile originSillyFile = AppConfig.chordState.getValueMap().get(hash);
 
                     if (file.isDirectory()) {
@@ -44,8 +53,8 @@ public class CommitCommand implements CLICommand {
                             originSillyFile = entry.getValue();
                             File rootFile = new File(myInfo.getRoot() + originSillyFile.getFilePath());
                             if (rootFile.exists()) {
-                                localContent = Files.readAllBytes(rootFile.toPath());
-                                if (Arrays.equals(localContent, originSillyFile.getFileContent())) {
+                                localContentBytes = Files.readAllBytes(rootFile.toPath());
+                                if (Arrays.equals(localContentBytes, originSillyFile.getFileContent())) {
                                     // No conflict
                                     AppConfig.timestampedStandardPrint("Files are identical. Version is not changing.");
                                 } else {
@@ -68,8 +77,8 @@ public class CommitCommand implements CLICommand {
                                                 AppConfig.timestampedStandardPrint(message);
                                             }
                                             case "push" -> {
-                                                addFileToStorageVersioning(originSillyFile, localContent);
-                                                originSillyFile.setFileContent(localContent);
+                                                addFileToStorageVersioning(originSillyFile, localContentBytes);
+                                                originSillyFile.setFileContent(localContentBytes);
                                                 originSillyFile.incrementVersion();
                                                 AppConfig.timestampedStandardPrint("Pushed file [" + originSillyFile.getFilePath() + "] to origin.");
                                                 working = false;
@@ -86,7 +95,7 @@ public class CommitCommand implements CLICommand {
                             }
                         }
                     } else {
-                        if (Arrays.equals(localContent, originSillyFile.getFileContent())) {
+                        if (Arrays.equals(localContentBytes, originSillyFile.getFileContent())) {
                             // No conflict
                             AppConfig.timestampedStandardPrint("Files are identical. Version is not changing.");
                         } else {
@@ -109,8 +118,8 @@ public class CommitCommand implements CLICommand {
                                         AppConfig.timestampedStandardPrint(cliMessage);
                                     }
                                     case "push" -> {
-                                        addFileToStorageVersioning(originSillyFile, localContent);
-                                        originSillyFile.setFileContent(localContent);
+                                        addFileToStorageVersioning(originSillyFile, localContentBytes);
+                                        originSillyFile.setFileContent(localContentBytes);
                                         originSillyFile.incrementVersion();
                                         AppConfig.timestampedStandardPrint("Pushed file [" + args + "] to origin.");
                                         working = false;
@@ -123,7 +132,6 @@ public class CommitCommand implements CLICommand {
                                     default -> AppConfig.timestampedErrorPrint("Unsupported command. " + cliMessage);
                                 }
                             }
-//                        sc.close();
                         }
                     }
                 } else {

@@ -7,13 +7,16 @@ import servent.message.*;
 import servent.message.util.MessageUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NewNodeHandler implements MessageHandler {
 
     private Message clientMessage;
-    private List<Integer> processedHashValues = Collections.synchronizedList(new ArrayList<>());
+    private List<Integer> processedHashValues = new CopyOnWriteArrayList<>();
 
     public NewNodeHandler(Message clientMessage) {
         this.clientMessage = clientMessage;

@@ -2,12 +2,15 @@ package app.utils;
 
 import app.AppConfig;
 import app.ChordState;
+import app.ServentInfo;
 import app.silly_git.SillyFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileUtils {
@@ -64,5 +67,26 @@ public class FileUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void getFileContent(Map<String, byte[]> contentFile, File file, ServentInfo myInfo) {
+        try {
+            if (file.isDirectory()) {
+                for (File f : file.listFiles()) {
+                    getFileContent(contentFile, f, myInfo);
+                }
+            } else {
+                byte[] content = Files.readAllBytes(file.toPath());
+                String key = file.getPath().substring(file.getPath().indexOf(myInfo.getRoot()) + myInfo.getRoot().length());
+                contentFile.put(key, content);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] getContentForFile(ConcurrentHashMap<String, byte[]> map, String fileName) {
+        if (map.containsKey(fileName)) return map.get(fileName);
+        else return new byte[]{};
     }
 }

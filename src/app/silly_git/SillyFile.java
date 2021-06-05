@@ -1,9 +1,8 @@
 package app.silly_git;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SillyFile implements Serializable {
@@ -13,7 +12,7 @@ public class SillyFile implements Serializable {
     private byte[] fileContent;
     private String filePath;
     private String directoryPath;
-    private Map<Integer, SillyFile> sillyFiles = Collections.synchronizedMap(new HashMap<>());
+    private Map<Integer, SillyFile> sillyFiles = new ConcurrentHashMap<>();
 
     public SillyFile(byte[] fileContent, String filePath) {
         this.fileContent = fileContent;

@@ -10,9 +10,12 @@ import servent.message.MessageType;
 import servent.message.util.MessageUtil;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static app.utils.FileUtils.addFileToStorageVersioning;
+import static app.utils.FileUtils.getContentForFile;
 
 public class CommitHandler implements MessageHandler {
 
@@ -35,9 +38,16 @@ public class CommitHandler implements MessageHandler {
             if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                 SillyFile originSillyFile = AppConfig.chordState.getValueMap().get(hash);
                 if (originSillyFile.isDirectory()) {
-
+                    for (Map.Entry<Integer, SillyFile> entry : originSillyFile.getSillyFiles().entrySet()) {
+                        originSillyFile = entry.getValue();
+                        CommitMessage sillyCommitMessage = message.changeReceiver(message, myInfo.getListenerPort(), nextNodeInfo.getListenerPort());
+                        // Get content of root file
+                        sillyCommitMessage = message.changeContent(sillyCommitMessage, getContentForFile((ConcurrentHashMap<String, byte[]>) message.getNewContent(), originSillyFile.getFilePath()));
+                        sillyCommitMessage = message.changeText(sillyCommitMessage, String.valueOf(entry.getKey()));
+                        MessageUtil.sendMessage(sillyCommitMessage);
+                    }
                 } else {
-                    if (Arrays.equals(message.getNewContent(), originSillyFile.getFileContent())) {
+                    if (Arrays.equals((byte[]) message.getNewContent(), originSillyFile.getFileContent())) {
                         // No conflict
                         AppConfig.timestampedStandardPrint("Files are identical.");
                     } else {
@@ -61,8 +71,8 @@ public class CommitHandler implements MessageHandler {
                                     AppConfig.timestampedStandardPrint(cliMessage);
                                 }
                                 case "push" -> {
-                                    addFileToStorageVersioning(originSillyFile, message.getNewContent());
-                                    originSillyFile.setFileContent(message.getNewContent());
+                                    addFileToStorageVersioning(originSillyFile, (byte[]) message.getNewContent());
+                                    originSillyFile.setFileContent((byte[]) message.getNewContent());
                                     originSillyFile.incrementVersion();
                                     AppConfig.timestampedStandardPrint("Pushed file [" + filePath + "] to origin.");
                                     working = false;

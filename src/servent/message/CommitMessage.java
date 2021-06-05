@@ -5,10 +5,10 @@ import app.ServentInfo;
 public class CommitMessage extends BasicMessage {
 
     private static final long serialVersionUID = -8558031124520315033L;
-    private byte[] newContent;
+    private Object newContent;
     private ServentInfo originalSender;
 
-    public CommitMessage(ServentInfo originalSender, int senderPort, int receiverPort, String text, byte[] newContent) {
+    public CommitMessage(ServentInfo originalSender, int senderPort, int receiverPort, String text, Object newContent) {
         super(MessageType.COMMIT, senderPort, receiverPort, text);
         this.originalSender = originalSender;
         this.newContent = newContent;
@@ -18,7 +18,15 @@ public class CommitMessage extends BasicMessage {
         return new CommitMessage(message.getOriginalSender(), newSenderPort, newReceiverPort, message.getMessageText(), message.getNewContent());
     }
 
-    public byte[] getNewContent() {
+    public CommitMessage changeContent(CommitMessage message, byte[] newContent) {
+        return new CommitMessage(message.getOriginalSender(), message.getSenderPort(), message.getReceiverPort(), message.getMessageText(), newContent);
+    }
+
+    public CommitMessage changeText(CommitMessage message, String newText) {
+        return new CommitMessage(message.getOriginalSender(), message.getSenderPort(), message.getReceiverPort(), newText, message.getNewContent());
+    }
+
+    public Object getNewContent() {
         return newContent;
     }
 
