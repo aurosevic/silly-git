@@ -91,17 +91,20 @@ public class FileUtils {
     }
 
     public static void removeFiles(ServentInfo myInfo, String path, int hash) {
-        File rootFile = new File(myInfo.getRoot() + path);
+        // Delete only files from origin
         File storageFile = new File(myInfo.getStorage() + path);
         if (storageFile.isDirectory()) {
             for (File f : storageFile.listFiles()) {
                 removeFiles(myInfo, path + SEPARATOR + f.getName(), hash);
                 f.delete();
-                new File(f.getPath().replace(SEPARATOR + "storage" + SEPARATOR, SEPARATOR + "root" + SEPARATOR)).delete();
             }
         } else {
-            rootFile.delete();
-            storageFile.delete();
+            // Also remove older versions of file if they exist
+            for (File f : new File(storageFile.getParent()).listFiles()) {
+                if (f.getName().startsWith(path)) {
+                    f.delete();
+                }
+            }
             AppConfig.chordState.getValueMap().remove(hash);
         }
     }
