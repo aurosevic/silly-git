@@ -95,18 +95,18 @@ public class CommitCommand implements CLICommand {
                             Scanner sc = new Scanner(System.in);
                             boolean working = true;
                             while (working) {
-                                String message = """
+                                String cliMessage = """
                                         Please choose one of the commands:\s
                                         -> view: View the content of the file from origin.
                                         -> push: Push my file to the origin.
                                         -> pull: Get file from the origin.""";
-                                AppConfig.timestampedStandardPrint(message);
+                                AppConfig.timestampedStandardPrint(cliMessage);
                                 String line = sc.nextLine();
                                 switch (line) {
                                     case "view" -> {
                                         String fileContent = new String(originSillyFile.getFileContent());
-                                        message = "Content of file [" + args + "] from origin:\n" + fileContent;
-                                        AppConfig.timestampedStandardPrint(message);
+                                        cliMessage = "Content of file [" + args + "] from origin:\n" + fileContent;
+                                        AppConfig.timestampedStandardPrint(cliMessage);
                                     }
                                     case "push" -> {
                                         addFileToStorageVersioning(originSillyFile, localContent);
@@ -120,7 +120,7 @@ public class CommitCommand implements CLICommand {
                                         AppConfig.timestampedStandardPrint("Pulled file [" + args + "] from origin.");
                                         working = false;
                                     }
-                                    default -> AppConfig.timestampedErrorPrint("Unsupported command. " + message);
+                                    default -> AppConfig.timestampedErrorPrint("Unsupported command. " + cliMessage);
                                 }
                             }
 //                        sc.close();
