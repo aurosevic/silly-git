@@ -36,7 +36,6 @@ public class CommitCommand implements CLICommand {
                 if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                     // File belongs to me
                     SillyFile originSillyFile = AppConfig.chordState.getValueMap().get(hash);
-
                     if (Arrays.equals(localContent, originSillyFile.getFileContent())) {
                         // No conflict
                         AppConfig.timestampedStandardPrint("Files are identical. Version is not changing.");
@@ -56,7 +55,7 @@ public class CommitCommand implements CLICommand {
                             switch (line) {
                                 case "view" -> {
                                     String fileContent = new String(originSillyFile.getFileContent());
-                                    message = "Content of file [" + args + "]:\n" + fileContent;
+                                    message = "Content of file [" + args + "] from origin:\n" + fileContent;
                                     AppConfig.timestampedStandardPrint(message);
                                 }
                                 case "push" -> {

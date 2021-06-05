@@ -37,6 +37,7 @@ public class PullCommand implements CLICommand {
             if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                 File testFile = new File(myInfo.getRoot() + fileName);
                 SillyFile sillyFile = AppConfig.chordState.getValueMap().get(hash);
+                if (!sillyFile.isDirectory() && sillyFile.getVersion().get() == version) version = -1;
                 if (!testFile.isDirectory() && testFile.exists() && version == -1 && Arrays.equals(Files.readAllBytes(testFile.toPath()), sillyFile.getFileContent())) {
                     AppConfig.timestampedErrorPrint("I already have file: [" + fileName + "]");
                 } else {
