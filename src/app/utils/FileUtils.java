@@ -89,4 +89,20 @@ public class FileUtils {
         if (map.containsKey(fileName)) return map.get(fileName);
         else return new byte[]{};
     }
+
+    public static void removeFiles(ServentInfo myInfo, String path, int hash) {
+        File rootFile = new File(myInfo.getRoot() + path);
+        File storageFile = new File(myInfo.getStorage() + path);
+        if (storageFile.isDirectory()) {
+            for (File f : storageFile.listFiles()) {
+                removeFiles(myInfo, path + SEPARATOR + f.getName(), hash);
+                f.delete();
+                new File(f.getPath().replace(SEPARATOR + "storage" + SEPARATOR, SEPARATOR + "root" + SEPARATOR)).delete();
+            }
+        } else {
+            rootFile.delete();
+            storageFile.delete();
+            AppConfig.chordState.getValueMap().remove(hash);
+        }
+    }
 }
