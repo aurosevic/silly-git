@@ -10,10 +10,10 @@ import servent.message.util.MessageUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Scanner;
 
-import static app.utils.FileUtils.addFileToStorage;
-import static app.utils.FileUtils.addFileToStorageVersioning;
+import static app.utils.FileUtils.*;
 
 public class CommitCommand implements CLICommand {
     @Override
@@ -25,53 +25,62 @@ public class CommitCommand implements CLICommand {
     public void execute(String args) {
         ServentInfo myInfo = AppConfig.myServentInfo;
 
-        String fileName = myInfo.getRoot() + "\\" + args;
+        String fileName = myInfo.getRoot() + SEPARATOR + args;
         File file = new File(fileName);
 
         try {
             if (file.exists()) {
-                int hash = ChordState.chordHashDir(fileName);
-                byte[] newContent = Files.readAllBytes(file.toPath());
+                int hash = ChordState.chordHashDir(args);
+                byte[] localContent = Files.readAllBytes(file.toPath());
 
                 if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                     // File belongs to me
-                    SillyFile mySillyFile = AppConfig.chordState.getValueMap().get(hash);
+                    SillyFile originSillyFile = AppConfig.chordState.getValueMap().get(hash);
 
-                    if (newContent == mySillyFile.getFileContent()) {
+                    if (Arrays.equals(localContent, originSillyFile.getFileContent())) {
                         // No conflict
-                        AppConfig.timestampedStandardPrint("Files are identical.");
+                        AppConfig.timestampedStandardPrint("Files are identical. Version is not changing.");
                     } else {
                         // With conflict
+                        AppConfig.timestampedStandardPrint("File [" + args + "] has conflict.");
                         Scanner sc = new Scanner(System.in);
                         boolean working = true;
                         while (working) {
+                            String message = """
+                                    Please choose one of the commands:\s
+                                    -> view: View the content of the file from origin.
+                                    -> push: Push my file to the origin.
+                                    -> pull: Get file from the origin.""";
+                            AppConfig.timestampedStandardPrint(message);
                             String line = sc.nextLine();
                             switch (line) {
                                 case "view" -> {
-                                    String fileContent = new String(mySillyFile.getFileContent());
-                                    AppConfig.timestampedStandardPrint(fileContent);
-                                    AppConfig.timestampedStandardPrint("push -> push my file to origin | pull -> get file from origin.");
+                                    String fileContent = new String(originSillyFile.getFileContent());
+                                    message = "Content of file [" + args + "]:\n" + fileContent;
+                                    AppConfig.timestampedStandardPrint(message);
                                 }
                                 case "push" -> {
-                                    addFileToStorageVersioning(mySillyFile);
-                                    mySillyFile.setFileContent(newContent);
-                                    mySillyFile.incrementVersion();
-                                    AppConfig.chordState.getValueMap().remove(hash);
-                                    AppConfig.chordState.getValueMap().put(hash, mySillyFile);
+                                    addFileToStorageVersioning(originSillyFile, localContent);
+                                    originSillyFile.setFileContent(localContent);
+                                    originSillyFile.incrementVersion();
+                                    AppConfig.timestampedStandardPrint("Pushed file [" + args + "] to origin.");
+//                                    AppConfig.chordState.getValueMap().remove(hash);
+//                                    AppConfig.chordState.getValueMap().put(hash, originSillyFile);
                                     working = false;
                                 }
                                 case "pull" -> {
-                                    addFileToStorage(mySillyFile, true);
+                                    addFileToStorage(originSillyFile, true);
+                                    AppConfig.timestampedStandardPrint("Pulled file [" + args + "] from origin.");
                                     working = false;
                                 }
-                                default -> AppConfig.timestampedErrorPrint("Unsupported command. Use: view, push or pull.");
+                                default -> AppConfig.timestampedErrorPrint("Unsupported command. " + message);
                             }
                         }
-                        sc.close();
+//                        sc.close();
                     }
                 } else {
                     ServentInfo nextNodeInfo = AppConfig.chordState.getNextNodeForKey(hash);
-                    CommitMessage message = new CommitMessage(myInfo, myInfo.getListenerPort(), nextNodeInfo.getListenerPort(), String.valueOf(hash), newContent);
+                    CommitMessage message = new CommitMessage(myInfo, myInfo.getListenerPort(), nextNodeInfo.getListenerPort(), String.valueOf(hash), localContent);
                     MessageUtil.sendMessage(message);
                 }
             } else {

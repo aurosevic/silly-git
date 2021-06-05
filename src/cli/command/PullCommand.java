@@ -11,6 +11,7 @@ import servent.message.util.MessageUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Map;
 
 import static app.utils.FileUtils.VERSION_PREFIX;
@@ -35,12 +36,12 @@ public class PullCommand implements CLICommand {
         try {
             if (AppConfig.chordState.getValueMap().containsKey(hash)) {
                 File testFile = new File(myInfo.getRoot() + fileName);
-                if (testFile.exists() && version == -1 && !testFile.isDirectory()) {
+                SillyFile sillyFile = AppConfig.chordState.getValueMap().get(hash);
+                if (!testFile.isDirectory() && testFile.exists() && version == -1 && Arrays.equals(Files.readAllBytes(testFile.toPath()), sillyFile.getFileContent())) {
                     AppConfig.timestampedErrorPrint("I already have file: [" + fileName + "]");
                 } else {
                     // I have file in storage, but not in the root OR it was a dir and I'm checking in case there's more
                     // files in that directory than what I have
-                    SillyFile sillyFile = AppConfig.chordState.getValueMap().get(hash);
                     if (sillyFile.isDirectory()) {
                         for (Map.Entry<Integer, SillyFile> entry : sillyFile.getSillyFiles().entrySet()) {
                             SillyFile subFile = entry.getValue();

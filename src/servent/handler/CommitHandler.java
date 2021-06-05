@@ -49,7 +49,7 @@ public class CommitHandler implements MessageHandler {
                                 AppConfig.timestampedStandardPrint("push -> push my file to origin | pull -> get file from origin.");
                             }
                             case "push" -> {
-                                addFileToStorageVersioning(mySillyFile);
+                                addFileToStorageVersioning(mySillyFile, null); // TODO: Replace null with new content
                                 mySillyFile.setFileContent(message.getNewContent());
                                 mySillyFile.incrementVersion();
                                 AppConfig.chordState.getValueMap().remove(hash);

@@ -6,12 +6,14 @@ import app.silly_git.SillyFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileUtils {
 
     public static final String VERSION_PREFIX = "~";
+    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     public static void addFileToStorage(SillyFile sillyFile, boolean isPull) {
         try {
@@ -27,27 +29,30 @@ public class FileUtils {
         }
     }
 
-    public static void addFileToStorageVersioning(SillyFile sillyFile) {
+    public static void addFileToStorageVersioning(SillyFile originSillyFile, byte[] newContent) {
         try {
-            byte[] fileContent = sillyFile.getFileContent();
+            byte[] fileContent = originSillyFile.getFileContent();
             String rootDir = AppConfig.myServentInfo.getStorage();
-            String storageFileName = rootDir + sillyFile.getFilePath() + "~" + sillyFile.getVersion();
-            File storageFile = new File(storageFileName);
-            File dir = new File(storageFile.getParent());
+            String versionedFileName = rootDir + originSillyFile.getFilePath() + "~" + originSillyFile.getVersion();
+            String newOriginFileName = rootDir + originSillyFile.getFilePath();
+            File versionedFile = new File(versionedFileName);
+            File newOriginFile = new File(newOriginFileName);
+            File dir = new File(versionedFile.getParent());
             if (!dir.exists()) dir.mkdirs();
-            Files.write(storageFile.toPath(), fileContent);
+            Files.write(versionedFile.toPath(), fileContent);
+            Files.write(newOriginFile.toPath(), newContent);
         } catch (IOException e) {
-            AppConfig.timestampedErrorPrint("Couldn't add file [" + sillyFile.getFilePath() + "] to storage.");
+            AppConfig.timestampedErrorPrint("Couldn't add file [" + originSillyFile.getFilePath() + "] to storage.");
         }
     }
 
     public static void getFilesFromDir(SillyFile sillyFile, String path, boolean isPull) {
         String rootDir = isPull ? AppConfig.myServentInfo.getStorage() : AppConfig.myServentInfo.getRoot();
-        rootDir += "\\" + path;
+        rootDir += SEPARATOR + path;
         File file = new File(rootDir);
         if (file.isDirectory()) {
             for (File f : file.listFiles()) {
-                String fileName = path + "\\" + f.getName();
+                String fileName = path + SEPARATOR + f.getName();
                 getFilesFromDir(sillyFile, fileName, isPull);
             }
         } else {

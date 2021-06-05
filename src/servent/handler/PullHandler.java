@@ -65,17 +65,8 @@ public class PullHandler implements MessageHandler {
                         }
                     }
                 } else {
-//                if (sillyFile.isDirectory()) {
-//                    for (Map.Entry<Integer, SillyFile> entry : sillyFile.getSillyFiles().entrySet()) {
-//                        String text = String.valueOf(entry.getKey());
-//                        message = message.changeText(message, text);
-//                        message = message.changeReceiver(message, myInfo.getListenerPort(), nextNodeInfo.getListenerPort());
-//                        MessageUtil.sendMessage(message);
-//                    }
-//                } else {
                     message = message.changeReceiver(message, myInfo.getListenerPort(), nextNodeInfo.getListenerPort());
                     MessageUtil.sendMessage(message);
-//                }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
