@@ -1,1 +1,3 @@
-# KiDS-homework-assignment-3
+# Silly Git
+
+Silly git is a decentralized version controll system.
