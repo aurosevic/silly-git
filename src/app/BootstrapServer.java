@@ -113,7 +113,7 @@ public class BootstrapServer {
      * Expects one command line argument - the port to listen on.
      */
     public static void main(String[] args) {
-        if (args.length != 1) {
+        if (args.length < 2) {
             AppConfig.timestampedErrorPrint("Bootstrap started without port argument.");
         }
 
